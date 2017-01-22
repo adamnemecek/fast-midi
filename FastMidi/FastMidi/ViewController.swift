@@ -7,12 +7,35 @@
 //
 
 import UIKit
+import CoreMIDI
+
+
+
+var midiClient = MIDIClientRef()
+
 
 class ViewController: UIViewController {
-
+    
+    @IBOutlet weak var label: UILabel!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        func MyMIDINotifyBlock(midiNotification: UnsafePointer<MIDINotification>) {
+            print("\ngot a MIDINotification!", midiNotification.pointee.messageID)
+            label.text! = "got a MIDI notification!"
+        }
+        
+        let notifyBlock = MyMIDINotifyBlock
+        
+        let status = MIDIClientCreateWithBlock("io.girum.MyMIDIClient" as CFString, &midiClient, notifyBlock)
+        
+        if status == noErr {
+            print("created client \(midiClient)")
+        } else {
+            print("error creating client : \(status)")
+        }
     }
 
     override func didReceiveMemoryWarning() {
