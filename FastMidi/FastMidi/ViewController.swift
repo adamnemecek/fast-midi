@@ -18,6 +18,8 @@ class ViewController: UIViewController {
     
     @IBOutlet weak var label: UILabel!
     
+    @IBOutlet weak var pianoOctaveView: PianoOctaveView!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
