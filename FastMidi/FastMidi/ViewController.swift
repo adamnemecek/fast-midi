@@ -8,6 +8,7 @@
 
 import UIKit
 import CoreMIDI
+import AudioToolbox
 
 
 
@@ -38,6 +39,31 @@ class ViewController: UIViewController {
         } else {
             print("error creating client : \(status)")
         }
+        
+        // Load "mysoundname.wav"
+        var mySound: SystemSoundID = 0
+        if let soundURL = Bundle.main.url(forResource: "Tennis Serve", withExtension: "wav") {
+            AudioServicesCreateSystemSoundID(soundURL as CFURL, &mySound)
+        }
+        
+        func MyMIDIReadProc(pktlist: UnsafePointer<MIDIPacketList>, refCon: UnsafeMutableRawPointer?) {
+            let packet: MIDIPacket = pktlist.pointee.packet
+            let midiCommand = packet.data.0 >> 4
+            
+            // is it a note-on
+            if (midiCommand == 0x09) {
+                let note = packet.data.1 & 0x7F
+                let velocity = packet.data.2 & 0x7F
+                
+                print("got MIDI note: \(note) at velocity \(velocity)")
+                
+                // Play
+                AudioServicesPlaySystemSound(mySound)
+            }
+        }
+        
+        var outPort = MIDIPortRef()
+        MIDIInputPortCreateWithBlock(midiClient, "My MIDI port" as CFString, &outPort, MyMIDIReadProc)
     }
 
     override func didReceiveMemoryWarning() {
